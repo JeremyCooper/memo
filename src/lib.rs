@@ -49,16 +49,10 @@ impl <I, O, F> MemoBox<I, O, F> where
                 println!("Encountered error while deserializing. {}", e);
             },
         }
-        //self.data = HashMap::from(
-        //    deserialize_from(&mut handle, Infinite)
-        //);
     }
     pub fn ser<W: Write>(&self, mut handle: W) {
-        match serialize_into(&mut handle, &self.data, Infinite) {
-            Ok(_) => (),
-            Err(e) => {
-                println!("Encountered error while serializing. {}", e);
-            },
+        if let Err(e) = serialize_into(&mut handle, &self.data, Infinite) {
+            println!("Encountered error while serializing. {}", e);
         }
     }
     pub fn dump_table(&self) {

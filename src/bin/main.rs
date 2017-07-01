@@ -1,7 +1,7 @@
 extern crate memo;
 
-use std::io::{Read, Write, stdin};
-use std::fs::File;
+use std::io::{stdin, SeekFrom, Seek};
+use std::fs::OpenOptions;
 use memo::MemoBox;
 
 //TODO: error handling
@@ -23,8 +23,18 @@ fn main() {
     let filename = "memoization.data";
 
     //Deserialize
-    match File::open(filename) {
+    match OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(filename) {
         Ok(mut file) => {
+            match file.seek(SeekFrom::Start(0)) {
+                Ok(_) => (),
+                Err(e) => {
+                    println!("Error seeking file. {}", e);
+                },
+            }
             callbox.des(file);
         },
         Err(e) => {
@@ -40,8 +50,10 @@ fn main() {
     println!("The {}th number is: {}", n, result);
 
     //Serialize
-    match File::open(filename) {
-        Ok(mut file) => {
+    match OpenOptions::new()
+            .write(true)
+            .open(filename) {
+        Ok(file) => {
             callbox.ser(file);
         },
         Err(e) => {
