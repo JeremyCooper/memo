@@ -1,12 +1,14 @@
 extern crate memo;
 
-use std::io;
+use std::io::{Read, Write, stdin};
+use std::fs::File;
 use memo::MemoBox;
 
+//TODO: error handling
 fn main() {
     println!("Please enter nth fibonacci position to print");
     let mut n = String::new();
-    io::stdin().read_line(&mut n).expect("read_line failed");
+    stdin().read_line(&mut n).expect("read_line failed");
     let n: u32 = match n.trim().parse() {
         Ok(num) => num,
         Err(_)  => {
@@ -15,19 +17,39 @@ fn main() {
         },
     };
 
+    //Create memoization context
     let mut callbox = MemoBox::new(find_fib);
 
-    callbox.des();
+    let filename = "memoization.data";
 
+    //Deserialize
+    match File::open(filename) {
+        Ok(mut file) => {
+            callbox.des(file);
+        },
+        Err(e) => {
+            println!("Error opening file {}: {}", filename, e);
+        },
+    }
+
+    //Call memoization context twice
     let result = callbox.call(n);
     println!("The {}th number is: {}", n, result);
     println!("Attempting resolve...");
-
     let result = callbox.call(n);
     println!("The {}th number is: {}", n, result);
 
-    callbox.ser();
+    //Serialize
+    match File::open(filename) {
+        Ok(mut file) => {
+            callbox.ser(file);
+        },
+        Err(e) => {
+            println!("Error opening file {}: {}", filename, e);
+        },
+    }
 
+    //Dump debuging information to stdout
     callbox.dump_table();
 }
 
