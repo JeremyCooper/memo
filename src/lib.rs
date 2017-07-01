@@ -7,8 +7,6 @@
 //! for previous cached calls and return stored
 //! value if found.
 
-#[macro_use]
-extern crate serde_derive;
 extern crate serde;
 extern crate bincode;
 
@@ -18,31 +16,17 @@ use std::hash::Hash;
 use std::collections::HashMap;
 use std::fmt::Display;
 use serde::ser::Serialize;
-use serde::de::Deserialize;
-use bincode::{serialize, deserialize, Infinite};
+use serde::de::DeserializeOwned;
+use bincode::{serialize_into, deserialize_from, Infinite};
+use std::fs::File;
 
-//impl<K, V> Serialize for HashMap<K, V>
-//    where K: Serialize,
-//          V: Serialize
-//{
-//    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//        where S: Serializer
-//    {
-//        let mut map = serializer.serialize_map(Some(self.len()))?;
-//        for (k, v) in self {
-//            map.serialize_entry(k, v)?;
-//        }
-//        map.end()
-//    }
-//}
-//pub struct MemoBox<I: Hash + Eq + Clone + Display, O: Clone + Display> {
 pub struct MemoBox<I, O> {
     data: HashMap<I, O>,
     function: fn(I) -> O,
 }
-impl <'a, I: Hash + Eq + Clone + Display, O: Clone + Display> MemoBox<I, O> where
-    I: Serialize + Deserialize<'a>,
-    O: Serialize + Deserialize<'a> {
+impl <I: Hash + Eq + Clone + Display, O: Clone + Display> MemoBox<I, O> where
+    I: Serialize + DeserializeOwned,
+    O: Serialize + DeserializeOwned {
     pub fn new(callable: fn(I) -> O) -> Self {
         MemoBox {
             data: HashMap::new(),
@@ -56,11 +40,15 @@ impl <'a, I: Hash + Eq + Clone + Display, O: Clone + Display> MemoBox<I, O> wher
             .or_insert_with(|| (fun)(input));
         output.clone()
     }
-    pub fn des(&self, encoded: Vec<u8>) {
-        let decoded: HashMap<I, O> = deserialize(&encoded).unwrap();
+    pub fn des(&mut self) {
+        let mut file = File::open("memoization.data").unwrap();
+        self.data = HashMap::new();
+        self.data = deserialize_from(&mut file, Infinite).unwrap();
+        //let decoded: HashMap<I, O> = deserialize(&encoded).unwrap();
     }
     pub fn ser(&self) {
-        let encoded: Vec<u8> = serialize(&self.data, Infinite).unwrap();
+        let mut buffer = File::create("memoization.data").unwrap();
+        serialize_into(&mut buffer, &self.data, Infinite).unwrap();
     }
 }
 

@@ -16,11 +16,17 @@ fn main() {
     };
 
     let mut callbox = MemoBox::new(find_fib);
+
+    callbox.des();
+
     let result = callbox.call(n);
     println!("The {}th number is: {}", n, result);
     println!("Attempting resolve...");
+
     let result = callbox.call(n);
     println!("The {}th number is: {}", n, result);
+
+    callbox.ser();
 }
 
 fn find_fib(n: u32) -> u32 {
