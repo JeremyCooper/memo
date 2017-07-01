@@ -27,6 +27,8 @@ fn main() {
     println!("The {}th number is: {}", n, result);
 
     callbox.ser();
+
+    callbox.dump_table();
 }
 
 fn find_fib(n: u32) -> u32 {

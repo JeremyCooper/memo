@@ -42,13 +42,18 @@ impl <I: Hash + Eq + Clone + Display, O: Clone + Display> MemoBox<I, O> where
     }
     pub fn des(&mut self) {
         let mut file = File::open("memoization.data").unwrap();
-        self.data = HashMap::new();
-        self.data = deserialize_from(&mut file, Infinite).unwrap();
-        //let decoded: HashMap<I, O> = deserialize(&encoded).unwrap();
+        self.data = HashMap::from(
+            deserialize_from(&mut file, Infinite).unwrap()
+        );
     }
     pub fn ser(&self) {
         let mut buffer = File::create("memoization.data").unwrap();
         serialize_into(&mut buffer, &self.data, Infinite).unwrap();
+    }
+    pub fn dump_table(&self) {
+        for (key, value) in self.data.iter() {
+            println!("I: {}, O: {}", key, value);
+        }
     }
 }
 
