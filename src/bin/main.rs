@@ -4,8 +4,8 @@ use std::io::{stdin, SeekFrom, Seek};
 use std::fs::OpenOptions;
 use memo::MemoBox;
 
-//TODO: error handling
 fn main() {
+    //Determine fibonacci position to calculate
     println!("Please enter nth fibonacci position to print");
     let mut n = String::new();
     stdin().read_line(&mut n).expect("read_line failed");
@@ -17,10 +17,10 @@ fn main() {
         },
     };
 
+    let filename = "memoization.data";
+
     //Create memoization context
     let mut callbox = MemoBox::new(find_fib);
-
-    let filename = "memoization.data";
 
     //Deserialize
     match OpenOptions::new()

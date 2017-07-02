@@ -67,11 +67,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn closure() {
+        let clos = |x: i32| { println!("hello"); x+1 };
+        let mut callbox = MemoBox::new(clos);
+        callbox.call(7);
+        assert_eq!(callbox.call(7), 8);
+    }
+
+    #[test]
     fn it_works() {
         fn square(x: i32) -> i32 { x*x }
-        let mut callbox = CallBox::new(square);
+        let mut callbox = MemoBox::new(square);
+        callbox.call(5);
         let result = callbox.call(5);
         assert_eq!(result, 25);
-        callbox.dump_table();
     }
 }
