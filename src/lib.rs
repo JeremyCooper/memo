@@ -10,8 +10,6 @@
 extern crate serde;
 extern crate bincode;
 
-//TODO: Add serialization and deserialization, serde
-
 use std::hash::Hash;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -41,7 +39,6 @@ impl <I, O, F> MemoBox<I, O, F> where
             .or_insert_with(|| (fun)(input));
         output.clone()
     }
-    //TODO: ser/des take Read/Write satisfying arguments passed from main
     pub fn des<R: Read>(&mut self, mut handle: R) {
         match deserialize_from(&mut handle, Infinite) {
             Ok(values) => self.data = HashMap::from(values),
